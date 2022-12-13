@@ -6,7 +6,10 @@
 ModelHandler defines a custom model handler - FB's Detectron model.
 """
 import os
-from models import afwm
+from models.networks import ResUnetGenerator, load_checkpoint
+from models.afwm import AFWM
+from typing import List, Dict
+import torch
 from ts.torch_handler.base_handler import BaseHandler
 
 class ModelHandler(BaseHandler):
@@ -28,49 +31,54 @@ class ModelHandler(BaseHandler):
         self.manifest = context.manifest
         properties = context.system_properties
         
-        model_dir = properties.get('model_dir')
+        warp_model_checkpoint_dir = properties.get("warp_model_checkpoint_dir")
+        gen_model_checkpoint_dir = properties.get("gen_model_checkpoint_dir")
         
-        model_file_path = os.path.join(model_dir, 'trained_model.pth')
-        model_config_path = os.path.join(model_dir, 'trained_model_config.yaml')
-        
-        # defining and loading detectron model
-        self.model = lp.Detectron2LayoutModel(model_config_path, model_file_path,
-                                              extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8],
-                                              label_map = {
-                                                1: "TextRegion",
-                                                2: "ImageRegion",
-                                                3: "TableRegion",
-                                                4: "MathsRegion",
-                                                5: "SeparatorRegion",
-                                                6: "OtherRegion"
-                                              })
-        
+        # defining and loading model
+        self.warp_model = AFWM(3)
+        load_checkpoint(self.warp_model, warp_model_checkpoint_dir)
+
+        self.gen_model = ResUnetGenerator(7, 4, 5, ngf=64)
+        load_checkpoint(self.gen_model, gen_model_checkpoint_dir)
+
         self.initialized = True
         
-    def preprocess(self, data):
+    def preprocess(self, requests: List[Dict[str, bytearray]]):
         """
         Transform raw input into model input data.
         :param batch: list of raw requests, should match batch size
         :return: list of preprocessed model input data
         """
         # Take the input data and make it inference ready
-        preprocessed_data = data[0].get("data")
+        preprocessed_data = requests[0].get("data")
         if preprocessed_data is None:
-            preprocessed_data = data[0].get("body")
+            preprocessed_data = requests[0].get("body")
 
         return preprocessed_data
 
-    def inference(self, model_input):
+    def inference(self, model_input: torch.Tensor):
         """
         Internal inference methods
         :param model_input: transformed model input data
         :return: list of inference output in NDArray
         """
         # Do some inference call to engine here and return output
-        model_output = self.model.detect(model_input)
-        return model_output
 
-    def postprocess(self, inference_output):
+        source_image, target_cloth_image, target_cloth_mask = model_input
+        with torch.no_grad():
+            warped_cloth, _, _, warped_cloth_mask = self.warp_model(source_image.cuda(), target_cloth_image.cuda(), target_cloth_mask.cuda())
+
+            gen_inputs = torch.cat([source_image.cuda(), warped_cloth, warped_cloth_mask], 1)
+            gen_outputs = self.gen_model(gen_inputs)
+            p_rendered, m_composite = torch.split(gen_outputs, [3, 1], 1)
+            p_rendered = torch.tanh(p_rendered)
+            m_composite = torch.sigmoid(m_composite)
+            m_composite = m_composite * warped_cloth_mask
+            p_tryon = warped_cloth * m_composite + p_rendered * (1 - m_composite)
+
+        return p_tryon
+
+    def postprocess(self, inference_output: List[torch.Tensor]):
         """
         Return inference result.
         :param inference_output: list of inference output

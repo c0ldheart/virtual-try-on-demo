@@ -115,3 +115,17 @@ class ResUnetSkipConnectionBlock(nn.Module):
             return self.model(x)
         else:
             return torch.cat([x, self.model(x)], 1)
+
+def load_checkpoint(model, checkpoint_path):
+
+    if not os.path.exists(checkpoint_path):
+        print('No checkpoint!')
+        return
+
+    checkpoint = torch.load(checkpoint_path)
+    checkpoint_new = model.state_dict()
+    for param in checkpoint_new:
+        checkpoint_new[param] = checkpoint[param]
+
+    model.load_state_dict(checkpoint_new)
+    
