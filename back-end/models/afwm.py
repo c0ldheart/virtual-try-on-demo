@@ -87,10 +87,10 @@ class ModulatedConv2d(nn.Module):
         self.bias = nn.Parameter(torch.Tensor(1, fout, 1, 1))
         #self.conv = F.conv2d
 
-        if normalize_mlp:
-            self.mlp_class_std = nn.Sequential(EqualLinear(latent_dim, fin), PixelNorm())
-        else:
-            self.mlp_class_std = EqualLinear(latent_dim, fin)
+        # if normalize_mlp:
+        #     self.mlp_class_std = nn.Sequential(EqualLinear(latent_dim, fin), PixelNorm())
+        # else:
+        self.mlp_class_std = EqualLinear(latent_dim, fin)
 
         #self.blur = Blur(fout)
 
@@ -144,8 +144,8 @@ class StyledConvBlock(nn.Module):
 
         if modulated_conv:
             conv2d = ModulatedConv2d
-        else:
-            conv2d = EqualConv2d
+        # else:
+        #     conv2d = EqualConv2d
 
         if modulated_conv:
             self.actvn_gain = sqrt(2)
@@ -212,8 +212,8 @@ class Styled_F_ConvBlock(nn.Module):
 
         if modulated_conv:
             conv2d = ModulatedConv2d
-        else:
-            conv2d = EqualConv2d
+        # else:
+        #     conv2d = EqualConv2d
 
         if modulated_conv:
             self.actvn_gain = sqrt(2)
@@ -481,22 +481,4 @@ class AFWM(nn.Module):
 
         return x_warp, last_flow, grid_list
 
-
-    def update_learning_rate(self,optimizer):
-        lrd = opt.lr / opt.niter_decay
-        lr = self.old_lr - lrd
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-        if opt.verbose:
-            print('update learning rate: %f -> %f' % (self.old_lr, lr))
-        self.old_lr = lr
-
-    def update_learning_rate_warp(self,optimizer):
-        lrd = 0.2 * opt.lr / opt.niter_decay
-        lr = self.old_lr_warp - lrd
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-        if opt.verbose:
-            print('update learning rate: %f -> %f' % (self.old_lr_warp, lr))
-        self.old_lr_warp = lr
 

@@ -6,7 +6,7 @@
 ModelHandler defines a custom model handler - FB's Detectron model.
 """
 import os
-
+from models import afwm
 from ts.torch_handler.base_handler import BaseHandler
 
 class ModelHandler(BaseHandler):
