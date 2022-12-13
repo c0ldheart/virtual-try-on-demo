@@ -415,7 +415,7 @@ class AFlowNet(nn.Module):
         self.image_style = torch.nn.Sequential(torch.nn.Conv2d(256, 128, kernel_size=(8,6), stride=1, padding=0), torch.nn.LeakyReLU(inplace=False, negative_slope=0.1))
 
 
-    def forward(self, x, x_warps, x_conds, warp_feature=True):
+    def forward(self, x, x_warps, x_conds, target_cloth_mask, warp_feature=True):
         last_flow = None
         
         B = x_conds[len(x_warps)-1].shape[0]
@@ -456,7 +456,8 @@ class AFlowNet(nn.Module):
 
         x_warp = F.grid_sample(x, last_flow.permute(0, 2, 3, 1),
                      mode='bilinear', padding_mode='border')
-        return x_warp, last_flow, grid_list
+        warped_mask = F.grid_sample(target_cloth_mask, last_flow.permute(0, 2, 3, 1), mode='bilinear', padding_mode='border')
+        return x_warp, last_flow, grid_list, warped_mask
 
 
 class AFWM(nn.Module):
@@ -471,14 +472,14 @@ class AFWM(nn.Module):
         self.aflow_net = AFlowNet(len(num_filters))
         
 
-    def forward(self, cond_input, image_input):
+    def forward(self, cond_input, image_input, target_cloth_mask):
 
         #import ipdb; ipdb.set_trace()
         cond_pyramids = self.cond_FPN(self.cond_features(cond_input)) # maybe use nn.Sequential
         image_pyramids = self.image_FPN(self.image_features(image_input))
 
-        x_warp, last_flow, grid_list = self.aflow_net(image_input, image_pyramids, cond_pyramids)
+        x_warp, last_flow, grid_list, warped_cloth_mask = self.aflow_net(image_input, image_pyramids, cond_pyramids, target_cloth_mask)
 
-        return x_warp, last_flow, grid_list
+        return x_warp, last_flow, grid_list, warped_cloth_mask
 
 
