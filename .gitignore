@@ -1,0 +1,7 @@
+
+.vscode/
+
+FlaskServer/
+
+.DS_Store
+web/part1/public/
