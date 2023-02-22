@@ -30,7 +30,7 @@ const UploadImage = () => {
     console.log('Received values of form: ', values);
     console.log('来自form.getFieldValue(image);: ', imageUrl1);
     // POST到后端
-    fetch('http://127.0.0.1:3000/predict', {
+    fetch('http://192.168.173.23:5000/predict', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ const UploadImage = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch('http://127.0.0.1:3000/upload', {
+    fetch('http://192.168.173.23:5000/upload', {
       method: 'POST',
       body: formData,
     })
