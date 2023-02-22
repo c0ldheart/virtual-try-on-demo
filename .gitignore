@@ -1,7 +1,11 @@
 
 .vscode/
 
-FlaskServer/
+FlaskServer/images/
+__pycache__
+FlaskServer/.DS_Store
+FlaskServer/results/
+FlaskServer/masks/
 
 .DS_Store
 web/part1/public/
