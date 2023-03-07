@@ -6,6 +6,6 @@ __pycache__
 FlaskServer/.DS_Store
 FlaskServer/results/
 FlaskServer/masks/
-
+FlaskServer/log/
 .DS_Store
 web/part1/public/
