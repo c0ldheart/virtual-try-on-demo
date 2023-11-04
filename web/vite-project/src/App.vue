@@ -9,7 +9,7 @@ function handleUpdateValue(key: string, item: MenuOption) {
   pickedClothID.value = ''
 }
 
-const img = (type: 'cloth' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/v1.0.0/assert/${type}/${id}.jpg`
+const img = (type: 'cloth' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/assert/${type}/${id}.jpg`
 const imgCloth: (id: string) => string = curry(img)('cloth')
 const imgHuman: (id: string) => string = curry(img)('human')
 
@@ -29,7 +29,6 @@ const menuOptions: MenuOption[] = [
   },
   ...types.map(e => ({
     label: () => h('p', {
-      class: 'ml-0',
       style: 'font-size: 1.5cqw'
     }, e), key: e
   }))
@@ -44,7 +43,7 @@ function pickCloth(id: string) {
 </script>
 
 <template>
-  <div class="p-4 flex">
+  <div class="p-4 flex h-screen overflow-hidden">
     <div class="w-1/5">
       <n-gradient-text style="font-size: 2cqw;">寒心霜冻の</n-gradient-text>
       <p class="font-bold" style="font-size: 3cqw;">虚拟试衣间</p>
@@ -52,16 +51,13 @@ function pickCloth(id: string) {
       <!-- <n-button @click="console.log(type)">debug</n-button> -->
     </div>
 
-    <div class="w-3/5">
-      <div class="flex flex-col" v-for="t of types" v-show="type === t">
-        <div class="overflow-auto">
-          <div class="flex flex-row flex-wrap justify-start">
-            <div class="w-1/3 p-2" v-for="item of clothes[type]">
-              <button @click="pickCloth(item)">
-                <img :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
-              </button>
-            </div>
-          </div>
+    <div class="w-3/5 flex flex-col overflow-auto" style="height: 96%;" v-for="t of types"
+      v-show="type === t">
+      <div class="flex flex-row flex-wrap justify-start">
+        <div class="w-1/3 p-2" v-for="item of clothes[type]">
+          <button @click="pickCloth(item)">
+            <img :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
+          </button>
         </div>
       </div>
     </div>
@@ -72,6 +68,7 @@ function pickCloth(id: string) {
       </div>
     </div>
   </div>
+
   <footer class="text-center fixed bottom-1 w-full flex justify-center items-center">
     POWERED BY
     <n-gradient-text class="mx-1">
