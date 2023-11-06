@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { NMenu, NButton, NImage, NGradientText, NAvatar } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
-import { h, ref } from 'vue'
+import { h, ref,onMounted  } from 'vue'
 import { curry } from './util'
+import Resizable from './Components/Resizable.vue'
+
 function handleUpdateValue(key: string, item: MenuOption) {
   console.log('[onUpdate:value]: ' + JSON.stringify(item))
   type.value = item.key as clothType
@@ -14,7 +16,7 @@ const imgCloth: (id: string) => string = curry(img)('cloth')
 const imgHuman: (id: string) => string = curry(img)('human')
 
 const clothes = {
-  'T恤': ['00013_00', '00013_00', '00013_00', '00013_00'],
+  'T恤': ['00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00'],
   '不知道叫啥分类': ['00008_00', '00008_00', '00008_00', '00008_00',]
 }
 type clothType = keyof typeof clothes
@@ -29,7 +31,7 @@ const menuOptions: MenuOption[] = [
   },
   ...types.map(e => ({
     label: () => h('p', {
-      style: 'font-size: 1.5cqw'
+      class: 'text-[1.5cqw]'
     }, e), key: e
   }))
 ]
@@ -44,27 +46,28 @@ function pickCloth(id: string) {
 
 <template>
   <div class="p-4 flex h-screen overflow-hidden">
-    <div class="w-1/5">
-      <n-gradient-text style="font-size: 2cqw;">寒心霜冻の</n-gradient-text>
-      <p class="font-bold" style="font-size: 3cqw;">虚拟试衣间</p>
+    <Resizable class="min-w-[10%] max-w-[30%]">
+      <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
+      <p class="text-[3cqw] font-bold">虚拟试衣间</p>
       <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
       <!-- <n-button @click="console.log(type)">debug</n-button> -->
-    </div>
+    </Resizable>
 
-    <div class="w-3/5 flex flex-col overflow-auto" style="height: 96%;" v-for="t of types"
-      v-show="type === t">
-      <div class="flex flex-row flex-wrap justify-start">
-        <div class="w-1/3 p-2" v-for="item of clothes[type]">
-          <button @click="pickCloth(item)">
-            <img :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
-          </button>
+    <Resizable class="min-w-[30%] max-w-[60%]">
+      <div class=" h-[96%] flex flex-col overflow-auto" v-for="t of types" v-show="type === t">
+        <div class="flex flex-row flex-wrap justify-start">
+          <div class="w-1/3 p-2" v-for="item of clothes[type]">
+            <button @click="pickCloth(item)">
+              <img :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Resizable>
 
-    <div class="w-1/5 flex justify-center items-center">
+    <div class="flex-1 flex justify-center items-center">
       <div v-show="pickedClothID">
-        <img :src="imgHuman(pickedClothID)" />
+        <img :src="pickedClothID ? imgHuman(pickedClothID) : ''" />
       </div>
     </div>
   </div>
