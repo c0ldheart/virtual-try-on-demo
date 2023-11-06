@@ -11,13 +11,13 @@ function handleUpdateValue(key: string, item: MenuOption) {
   pickedClothID.value = ''
 }
 
-const img = (type: 'cloth' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/assert/${type}/${id}.jpg`
-const imgCloth: (id: string) => string = curry(img)('cloth')
+const img = (type: 'clothes' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/${type}/${id}.jpg`
+const imgCloth: (id: string) => string = curry(img)('clothes')
 const imgHuman: (id: string) => string = curry(img)('human')
 
 const clothes = {
-  'T恤': ['00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00', '00013_00'],
-  '不知道叫啥分类': ['00008_00', '00008_00', '00008_00', '00008_00',]
+  'T恤': Array.from({length: 50}, (_, i) => (i + 1).toString()),
+  '不知道叫啥分类': Array.from({length: 50}, (_, i) => (i + 1).toString()),
 }
 type clothType = keyof typeof clothes
 
@@ -41,7 +41,9 @@ function pickCloth(id: string) {
   console.log('pickCloth', id)
   pickedClothID.value = id
 }
-
+let humanId = '2297f5f5'
+const tryOnId = (clothId: string) => `${clothId}_${humanId}`
+const imgTryOn = (clothId: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/human/${humanId}/${tryOnId(clothId)}.png`
 </script>
 
 <template>
@@ -67,7 +69,7 @@ function pickCloth(id: string) {
 
     <div class="flex-1 flex justify-center items-center">
       <div v-show="pickedClothID">
-        <img :src="pickedClothID ? imgHuman(pickedClothID) : ''" />
+        <img :src="imgTryOn(pickedClothID)" />
       </div>
     </div>
   </div>
