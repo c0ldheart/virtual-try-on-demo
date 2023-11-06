@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NMenu, NButton, NImage, NGradientText, NAvatar } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
-import { h, ref, onMounted } from 'vue'
+import { h, ref, watch, onMounted } from 'vue'
 import { curry } from './util'
 import Resizable from './Components/Resizable.vue'
 
@@ -41,6 +41,14 @@ function pickCloth(id: string) {
   pickedClothID.value = id
 }
 
+const clothHoverStyle = 'hover:border-green-200 hover:border-2 hover:rounded'
+const clothPickStyle = 'border-green-400 border-2 rounded'
+
+watch(pickedClothID, (newID: string, oldID: string) => {
+  document.querySelectorAll(`[cloth-id="${oldID}"]`).forEach(e => e.className = clothHoverStyle)
+  document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
+})
+
 const humans = ['2297f5f5', '2397f788']
 const humanIndex = ref(0)
 const getHuman = (i: number) => humans.at(i % humans.length) as string
@@ -59,9 +67,9 @@ const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubuserco
     <Resizable class="min-w-[50%] max-w-[80%]">
       <div class=" h-[96%] flex flex-col overflow-auto" v-for="t of types" v-show="type === t">
         <div class="flex flex-row flex-wrap justify-start">
-          <div class="w-1/3 p-2" v-for="item of clothes[type]">
+          <div class="w-1/3 p-1" v-for="item of clothes[type]">
             <button @click="pickCloth(item)">
-              <img :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
+              <img :class="clothHoverStyle" :cloth-id="item" :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
             </button>
           </div>
         </div>
