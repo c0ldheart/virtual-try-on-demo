@@ -48,14 +48,14 @@ const imgTryOn = (clothId: string) => `https://raw.githubusercontent.com/c0ldhea
 
 <template>
   <div class="p-4 flex h-screen overflow-hidden">
-    <Resizable class="min-w-[10%] max-w-[30%]">
+    <Resizable class="min-w-[20%] max-w-[30%]">
       <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
       <p class="text-[3cqw] font-bold">虚拟试衣间</p>
       <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
       <!-- <n-button @click="console.log(type)">debug</n-button> -->
     </Resizable>
 
-    <Resizable class="min-w-[30%] max-w-[60%]">
+    <Resizable class="min-w-[50%] max-w-[80%]">
       <div class=" h-[96%] flex flex-col overflow-auto" v-for="t of types" v-show="type === t">
         <div class="flex flex-row flex-wrap justify-start">
           <div class="w-1/3 p-2" v-for="item of clothes[type]">
