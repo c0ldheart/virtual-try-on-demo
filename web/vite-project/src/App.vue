@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NMenu, NButton, NImage, NGradientText, NAvatar } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
-import { h, ref,onMounted  } from 'vue'
+import { h, ref, onMounted } from 'vue'
 import { curry } from './util'
 import Resizable from './Components/Resizable.vue'
 
@@ -13,16 +13,15 @@ function handleUpdateValue(key: string, item: MenuOption) {
 
 const img = (type: 'clothes' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/${type}/${id}.jpg`
 const imgCloth: (id: string) => string = curry(img)('clothes')
-const imgHuman: (id: string) => string = curry(img)('human')
 
 const clothes = {
-  'T恤': Array.from({length: 50}, (_, i) => (i + 1).toString()),
-  '不知道叫啥分类': Array.from({length: 50}, (_, i) => (i + 1).toString()),
+  'T恤': Array.from({ length: 50 }, (_, i) => (i + 1).toString()),
+  '不知道叫啥分类': Array.from({ length: 50 }, (_, i) => (i + 1).toString()),
 }
 type clothType = keyof typeof clothes
 
 const types = Object.keys(clothes) as clothType[]
-let type = ref<clothType>('T恤')
+const type = ref<clothType>(types[0])
 
 const menuOptions: MenuOption[] = [
   {
@@ -41,9 +40,11 @@ function pickCloth(id: string) {
   console.log('pickCloth', id)
   pickedClothID.value = id
 }
-let humanId = '2297f5f5'
-const tryOnId = (clothId: string) => `${clothId}_${humanId}`
-const imgTryOn = (clothId: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/human/${humanId}/${tryOnId(clothId)}.png`
+
+const humans = ['2297f5f5', '2397f788']
+const humanIndex = ref(0)
+const getHuman = (i: number) => humans.at(i % humans.length) as string
+const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/human/${humanId}/${clothId}_${humanId}.png`
 </script>
 
 <template>
@@ -68,8 +69,20 @@ const imgTryOn = (clothId: string) => `https://raw.githubusercontent.com/c0ldhea
     </Resizable>
 
     <div class="flex-1 flex justify-center items-center">
-      <div v-show="pickedClothID">
-        <img :src="imgTryOn(pickedClothID)" />
+      <div class="relative" v-show="pickedClothID">
+        <button class="absolute left-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
+          @click="humanIndex--">
+          <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
+            <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"></path>
+          </svg>
+        </button>
+        <button class="absolute right-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
+          @click="humanIndex++">
+          <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
+            <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
+          </svg>
+        </button>
+        <img class="" :src="pickedClothID ? imgTryOn(pickedClothID, getHuman(humanIndex)) : ''" />
       </div>
     </div>
   </div>
