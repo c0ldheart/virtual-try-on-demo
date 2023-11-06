@@ -22,7 +22,7 @@ const clothes = {
 type clothType = keyof typeof clothes
 
 const types = Object.keys(clothes) as clothType[]
-let type = ref<clothType>('T恤')
+const type = ref<clothType>('T恤')
 
 const menuOptions: MenuOption[] = [
   {
@@ -69,7 +69,7 @@ const imgTryOn = (clothId: string) => `https://raw.githubusercontent.com/c0ldhea
 
     <div class="flex-1 flex justify-center items-center">
       <div v-show="pickedClothID">
-        <img :src="imgTryOn(pickedClothID)" />
+        <img :src="pickedClothID ? imgTryOn(pickedClothID) : ''" />
       </div>
     </div>
   </div>
