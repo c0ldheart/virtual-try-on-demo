@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NMenu, NButton, NImage, NGradientText, NAvatar } from 'naive-ui'
+import { NMenu, NButton, NGradientText, NAvatar } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { h, ref, watch, onMounted } from 'vue'
 import { curry } from './util'
@@ -57,52 +57,53 @@ const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubuserco
 </script>
 
 <template>
-  <div class="p-4 flex h-screen overflow-hidden">
-    <div class="w-[20%]">
-      <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
-      <p class="text-[3cqw] font-bold">虚拟试衣间</p>
-      <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
-      <!-- <n-button @click="console.log(type)">debug</n-button> -->
-    </div>
+  <div class="flex flex-col h-screen">
+    <div class="flex px-4 pt-4 pb-1 h-[96%]">
+      <div class="w-[20%]">
+        <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
+        <p class="text-[3cqw] font-bold">虚拟试衣间</p>
+        <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
+      </div>
 
-    <Resizable class="min-w-[30%] max-w-[80%]">
-      <div class=" h-[96%] flex flex-col overflow-auto" v-for="t of types" v-show="type === t">
-        <div class="flex flex-row flex-wrap justify-start">
-          <div class="w-1/3 p-1" v-for="item of clothes[type]">
-            <button @click="pickCloth(item)">
-              <img :class="clothHoverStyle" :cloth-id="item" :alt="imgCloth(item)" :src="imgCloth(item)" loading="lazy" />
-            </button>
+      <Resizable class="min-w-[30%] max-w-[80%]">
+        <div class="flex flex-col h-full overflow-auto" v-for="t of types" v-show="type === t">
+          <div class="flex flex-row flex-wrap justify-start">
+            <div class="w-1/3 p-1" v-for="item of clothes[type]">
+              <button @click="pickCloth(item)">
+                <img :class="clothHoverStyle" :cloth-id="item" :src="imgCloth(item)" loading="lazy" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </Resizable>
+      </Resizable>
 
-    <div class="flex-1 flex flex-col justify-center items-center h-[96%]" v-show="pickedClothID">
-      <div class="relative">
-        <button class="absolute left-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
-          @click="humanIndex--">
-          <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
-            <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"></path>
-          </svg>
-        </button>
-        <button class="absolute right-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
-          @click="humanIndex++">
-          <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
-            <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
-          </svg>
-        </button>
-        <img class="max-h-[60vh]" :src="pickedClothID ? imgTryOn(pickedClothID, getHuman(humanIndex)) : ''" />
+      <div class="flex-1 flex flex-col justify-center items-center" v-show="pickedClothID">
+        <div class="relative h-[60%]">
+          <button class="absolute left-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
+            @click="humanIndex--">
+            <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
+              <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"></path>
+            </svg>
+          </button>
+          <button class="absolute right-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
+            @click="humanIndex++">
+            <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
+              <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
+            </svg>
+          </button>
+          <img class="h-full" :src="pickedClothID ? imgTryOn(pickedClothID, getHuman(humanIndex)) : ''" />
+        </div>
+        <div class="h-[2%]"></div>
+        <img class="h-[30%]" :src="pickedClothID ? imgPreprocessed(getHuman(humanIndex)) : ''">
       </div>
-      <div class="h-[2%]"></div>
-      <img class=" max-h-[30%]" :src="pickedClothID ? imgPreprocessed(getHuman(humanIndex)) : ''">
     </div>
-  </div>
 
-  <footer class="text-center fixed bottom-1 w-full flex justify-center items-center">
-    POWERED BY
-    <n-gradient-text class="mx-1">
-      <a href="https://github.com/c0ldheart" target="_blank">COLDHEART</a>
-    </n-gradient-text>
-    <n-avatar class="w-4 h-4" src="https://q.qlogo.cn/g?b=qq&nk=630228704&s=100" />
-  </footer>
+    <footer class="flex-1 w-full flex justify-center items-center">
+      POWERED BY
+      <n-gradient-text class="mx-1">
+        <a href="https://github.com/c0ldheart" target="_blank">COLDHEART</a>
+      </n-gradient-text>
+      <n-avatar class="w-4 h-4" src="https://q.qlogo.cn/g?b=qq&nk=630228704&s=100" />
+    </footer>
+  </div>
 </template>
