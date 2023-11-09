@@ -13,6 +13,7 @@ function handleUpdateValue(key: string, item: MenuOption) {
 
 const img = (type: 'clothes' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/${type}/${id}.jpg`
 const imgCloth: (id: string) => string = curry(img)('clothes')
+const imgPreprocessed = (id: string) => `src/assets/preprocessed/${id}.png`
 
 const clothes = {
   'T恤': Array.from({ length: 50 }, (_, i) => (i + 1).toString()),
@@ -57,14 +58,14 @@ const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubuserco
 
 <template>
   <div class="p-4 flex h-screen overflow-hidden">
-    <Resizable class="min-w-[20%] max-w-[30%]">
+    <div class="w-[20%]">
       <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
       <p class="text-[3cqw] font-bold">虚拟试衣间</p>
       <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
       <!-- <n-button @click="console.log(type)">debug</n-button> -->
-    </Resizable>
+    </div>
 
-    <Resizable class="min-w-[50%] max-w-[80%]">
+    <Resizable class="min-w-[30%] max-w-[80%]">
       <div class=" h-[96%] flex flex-col overflow-auto" v-for="t of types" v-show="type === t">
         <div class="flex flex-row flex-wrap justify-start">
           <div class="w-1/3 p-1" v-for="item of clothes[type]">
@@ -76,8 +77,8 @@ const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubuserco
       </div>
     </Resizable>
 
-    <div class="flex-1 flex justify-center items-center">
-      <div class="relative" v-show="pickedClothID">
+    <div class="flex-1 flex flex-col justify-center items-center h-[96%]" v-show="pickedClothID">
+      <div class="relative">
         <button class="absolute left-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
           @click="humanIndex--">
           <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
@@ -90,8 +91,10 @@ const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubuserco
             <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
           </svg>
         </button>
-        <img class="" :src="pickedClothID ? imgTryOn(pickedClothID, getHuman(humanIndex)) : ''" />
+        <img class="max-h-[60vh]" :src="pickedClothID ? imgTryOn(pickedClothID, getHuman(humanIndex)) : ''" />
       </div>
+      <div class="h-[2%]"></div>
+      <img class=" max-h-[30%]" :src="pickedClothID ? imgPreprocessed(getHuman(humanIndex)) : ''">
     </div>
   </div>
 

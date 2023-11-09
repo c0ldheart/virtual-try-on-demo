@@ -13,7 +13,6 @@
 
 <style scoped>
 .resize {
-  position: relative;
   transform: scaleY(100);
   overflow: scroll;
   resize: horizontal;
@@ -30,7 +29,6 @@
   width: 5px;
   bottom: 0;
   background-color: royalblue;
-  transition: .3s;
   pointer-events: none;
 }
 
