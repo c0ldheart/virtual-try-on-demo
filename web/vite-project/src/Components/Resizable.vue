@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative overflow-hidden">
     <div class="resize"></div>
     <div class="line opacity-20"></div>
     <div class="content absolute">
