@@ -13,7 +13,7 @@ function handleUpdateValue(key: string, item: MenuOption) {
 
 const img = (type: 'clothes' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/${type}/${id}.jpg`
 const imgCloth: (id: string) => string = curry(img)('clothes')
-const imgPreprocessed = (id: string) => `src/assets/preprocessed/${id}.png`
+const imgPreprocessed = (id: string) => new URL(`./assets/preprocessed/${id}.png`, import.meta.url).href
 
 const clothes = {
   'T恤': Array.from({ length: 50 }, (_, i) => (i + 1).toString()),
