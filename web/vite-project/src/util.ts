@@ -4,3 +4,13 @@ export const curry = (fn: Function) =>
             ? fn(...args)
             : c.bind(null, ...args)
     }
+
+export function log(...data: any[]) {
+    if (import.meta.env.DEV) {
+        console.log(...data)
+    }
+}
+
+export function unique(iterable: any[]) {
+    return [...new Set(iterable)]
+}

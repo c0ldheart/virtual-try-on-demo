@@ -2,22 +2,27 @@
 import { NMenu, NButton, NGradientText, NAvatar } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { h, ref, watch, onMounted } from 'vue'
-import { curry } from './util'
+import { curry, log, unique } from './util'
 import Resizable from './Components/Resizable.vue'
 
 function handleUpdateValue(key: string, item: MenuOption) {
-  console.log('[onUpdate:value]: ' + JSON.stringify(item))
+  log('[onUpdate:value]: ' + JSON.stringify(item))
   type.value = item.key as clothType
   pickedClothID.value = ''
 }
 
-const img = (type: 'clothes' | 'human', id: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/${type}/${id}.jpg`
-const imgCloth: (id: string) => string = curry(img)('clothes')
-const imgPreprocessed = (id: string) => new URL(`./assets/preprocessed/${id}.png`, import.meta.url).href
+// 此处有坑，See https://cn.vitejs.dev/guide/assets.html#new-url-url-import-meta-url
+const asset = (path: string) => new URL(`./assets/${path}`, import.meta.url).href
+const imgCloth = (id: string) => asset(`clothes/${id}.jpg`)
+const imgPreprocessed = (id: string) => asset(`preprocessed/${id}.png`)
+const imgTryOn = (clothId: string, humanId: string) => asset(`human/${humanId}/${clothId}_${humanId}.png`)
+
+const humans = unique(Object.keys(import.meta.glob('./assets/human/**')).map(s => s.split('/').at(-2))) as string[]
+const humanIndex = ref(0)
+const getHuman = (i: number) => humans.at(i % humans.length) as string
 
 const clothes = {
-  'T恤': Array.from({ length: 50 }, (_, i) => (i + 1).toString()),
-  '不知道叫啥分类': Array.from({ length: 50 }, (_, i) => (i + 1).toString()),
+  '未分类': Object.keys(import.meta.glob('./assets/clothes/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[]
 }
 type clothType = keyof typeof clothes
 
@@ -36,9 +41,9 @@ const menuOptions: MenuOption[] = [
   }))
 ]
 
-const pickedClothID = ref('')
+const pickedClothID = ref(import.meta.env.DEV ? '5' : '')
 function pickCloth(id: string) {
-  console.log('pickCloth', id)
+  log('pickCloth', id)
   pickedClothID.value = id
 }
 
@@ -49,11 +54,6 @@ watch(pickedClothID, (newID: string, oldID: string) => {
   document.querySelectorAll(`[cloth-id="${oldID}"]`).forEach(e => e.className = clothHoverStyle)
   document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
 })
-
-const humans = ['2297f5f5', '2397f788']
-const humanIndex = ref(0)
-const getHuman = (i: number) => humans.at(i % humans.length) as string
-const imgTryOn = (clothId: string, humanId: string) => `https://raw.githubusercontent.com/c0ldheart/virtual-try-on-demo/master/asset/human/${humanId}/${clothId}_${humanId}.png`
 </script>
 
 <template>
