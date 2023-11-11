@@ -26,11 +26,19 @@ onMounted(() => {
     observer.observe(img.value as unknown as Node, { attributes: true, attributeFilter: ['src'] })
 })
 
+defineProps({
+    src: {
+        type: String,
+        required: true
+    },
+    lazy: Boolean,
+    loading: String,
+})
 </script>
 
 <template>
-    <div class="flex justify-center relative -z-10">
-        <img id="img" ref="img" class="h-full" @load="loaded" @error="loaded" v-bind="$attrs">
+    <div class="flex justify-center relative">
+        <img ref="img" class="h-full" @load="loaded" @error="loaded" :src="src" :loading="lazy ? 'lazy' : 'eager'">
         <n-spin class="absolute h-full w-full" v-show="isLoadding"></n-spin>
     </div>
 </template>
