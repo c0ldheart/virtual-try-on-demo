@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { NMenu, NButton, NGradientText, NAvatar } from 'naive-ui'
+import { NMenu, NButton, NGradientText, NAvatar, NSpin, NImage } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { h, ref, watch, onMounted } from 'vue'
 import { curry, log, unique } from './util'
 import Resizable from './Components/Resizable.vue'
+import LImg from './Components/LImg.vue'
 
-// TODO：图片加载时的转圈或占位符
+// TODO：图片上传并返回结果
+// TODO: Resizable 组件实现默认大小
 
 function handleUpdateValue(key: string, item: MenuOption) {
   log('[onUpdate:value]: ' + JSON.stringify(item))
@@ -29,7 +31,7 @@ const clothes = {
 type clothType = keyof typeof clothes
 
 const types = Object.keys(clothes) as clothType[]
-const type = ref<clothType>(types[0])
+const type = ref(types[0])
 
 const menuOptions: MenuOption[] = [
   {
@@ -56,6 +58,7 @@ watch(pickedClothID, (newID: string, oldID: string) => {
   document.querySelectorAll(`[cloth-id="${oldID}"]`).forEach(e => e.className = clothHoverStyle)
   document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
 })
+
 </script>
 
 <template>
@@ -72,7 +75,7 @@ watch(pickedClothID, (newID: string, oldID: string) => {
           <div class="flex flex-row flex-wrap justify-start">
             <div class="w-1/3 p-1" v-for="item of clothes[type]">
               <button @click="pickCloth(item)">
-                <img :class="clothHoverStyle" :cloth-id="item" :src="imgCloth(item)" loading="lazy" />
+                <LImg :class="clothHoverStyle" :cloth-id="item" :src="imgCloth(item)" loading="lazy" />
               </button>
             </div>
           </div>
@@ -93,10 +96,10 @@ watch(pickedClothID, (newID: string, oldID: string) => {
               <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
             </svg>
           </button>
-          <img class="h-full" :src="imgTryOn(pickedClothID, getHuman(humanIndex))" />
+          <LImg class="h-full" :src="imgTryOn(pickedClothID, getHuman(humanIndex))" />
         </div>
         <div class="h-[2%]"></div>
-        <img class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))">
+        <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))" />
       </div>
     </div>
 
