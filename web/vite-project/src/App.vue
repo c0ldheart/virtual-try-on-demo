@@ -5,6 +5,8 @@ import { h, ref, watch, onMounted } from 'vue'
 import { curry, log, unique } from './util'
 import Resizable from './Components/Resizable.vue'
 
+// TODO：图片加载时的转圈或占位符
+
 function handleUpdateValue(key: string, item: MenuOption) {
   log('[onUpdate:value]: ' + JSON.stringify(item))
   type.value = item.key as clothType
@@ -41,7 +43,7 @@ const menuOptions: MenuOption[] = [
   }))
 ]
 
-const pickedClothID = ref(import.meta.env.DEV ? '5' : '')
+const pickedClothID = ref('')
 function pickCloth(id: string) {
   log('pickCloth', id)
   pickedClothID.value = id
@@ -77,7 +79,7 @@ watch(pickedClothID, (newID: string, oldID: string) => {
         </div>
       </Resizable>
 
-      <div class="flex-1 flex flex-col justify-center items-center" v-show="pickedClothID">
+      <div class="flex-1 flex flex-col justify-center items-center">
         <div class="relative h-[60%]">
           <button class="absolute left-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
             @click="humanIndex--">
@@ -91,10 +93,10 @@ watch(pickedClothID, (newID: string, oldID: string) => {
               <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
             </svg>
           </button>
-          <img class="h-full" :src="pickedClothID ? imgTryOn(pickedClothID, getHuman(humanIndex)) : ''" />
+          <img class="h-full" :src="imgTryOn(pickedClothID, getHuman(humanIndex))" />
         </div>
         <div class="h-[2%]"></div>
-        <img class="h-[30%]" :src="pickedClothID ? imgPreprocessed(getHuman(humanIndex)) : ''">
+        <img class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))">
       </div>
     </div>
 
