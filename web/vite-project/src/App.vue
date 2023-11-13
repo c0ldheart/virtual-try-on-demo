@@ -3,11 +3,8 @@ import { NMenu, NButton, NGradientText, NAvatar, NSpin, NImage } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { h, ref, watch, onMounted } from 'vue'
 import { curry, log, unique } from './util'
-import Resizable from './Components/Resizable.vue'
-import LImg from './Components/LImg.vue'
-import ResultImage from './Components/ResultImage.vue'
+import { Resizable, LImg, ResultImage } from './Components'
 
-// TODO: 组件统一导出
 // TODO: 优化组件间属性传递
 // TODO：图片上传并返回结果
 // TODO: Resizable 组件实现默认大小
