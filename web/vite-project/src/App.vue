@@ -5,7 +5,10 @@ import { h, ref, watch, onMounted } from 'vue'
 import { curry, log, unique } from './util'
 import Resizable from './Components/Resizable.vue'
 import LImg from './Components/LImg.vue'
+import ResultImage from './Components/ResultImage.vue'
 
+// TODO: 组件统一导出
+// TODO: 优化组件间属性传递
 // TODO：图片上传并返回结果
 // TODO: Resizable 组件实现默认大小
 
@@ -75,7 +78,7 @@ watch(pickedClothID, (newID: string, oldID: string) => {
           <div class="flex flex-row flex-wrap justify-start">
             <div class="w-1/3 p-1" v-for="item of clothes[type]">
               <button @click="pickCloth(item)">
-                <LImg :class="clothHoverStyle" :cloth-id="item" :src="imgCloth(item)" lazy/>
+                <LImg :class="clothHoverStyle" :cloth-id="item" :src="imgCloth(item)" lazy />
               </button>
             </div>
           </div>
@@ -83,21 +86,8 @@ watch(pickedClothID, (newID: string, oldID: string) => {
       </Resizable>
 
       <div class="flex-1 flex flex-col justify-center items-center">
-        <div class="relative h-[60%]">
-          <button class="absolute z-10 left-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
-            @click="humanIndex--">
-            <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
-              <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"></path>
-            </svg>
-          </button>
-          <button class="absolute z-10 right-0 flex flex-col justify-center opacity-50 h-full cursor-pointer"
-            @click="humanIndex++">
-            <svg xmlns="http://www.w3.org/2000/svg" height="10%" viewBox="0 0 24 24">
-              <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
-            </svg>
-          </button>
-          <LImg class="h-full" :src="imgTryOn(pickedClothID, getHuman(humanIndex))" />
-        </div>
+        <ResultImage class="h-[60%]" @click-left-arrow="humanIndex--" @click-right-arrow="humanIndex++"
+          :src="imgTryOn(pickedClothID, getHuman(humanIndex))"></ResultImage>
         <div class="h-[2%]"></div>
         <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))" />
       </div>

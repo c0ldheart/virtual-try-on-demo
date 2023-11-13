@@ -2,6 +2,15 @@
 import { ref, onMounted } from 'vue'
 import { NSpin } from 'naive-ui'
 
+defineProps({
+    src: {
+        type: String,
+        required: true
+    },
+    lazy: Boolean,
+})
+const emit = defineEmits(['load-success'])
+
 const isLoadding = ref(true)
 
 function loaded() {
@@ -10,6 +19,11 @@ function loaded() {
 
 function load() {
     isLoadding.value = true
+}
+
+function loadSuccess() {
+    loaded()
+    emit('load-success')
 }
 
 const img = ref(null)
@@ -26,19 +40,11 @@ onMounted(() => {
     observer.observe(img.value as unknown as Node, { attributes: true, attributeFilter: ['src'] })
 })
 
-defineProps({
-    src: {
-        type: String,
-        required: true
-    },
-    lazy: Boolean,
-    loading: String,
-})
 </script>
 
 <template>
     <div class="flex justify-center relative">
-        <img ref="img" class="h-full" @load="loaded" @error="loaded" :src="src" :loading="lazy ? 'lazy' : 'eager'">
+        <img ref="img" class="h-full" @load="loadSuccess" @error="loaded" :src="src" :loading="lazy ? 'lazy' : 'eager'">
         <n-spin class="absolute h-full w-full" v-show="isLoadding"></n-spin>
     </div>
 </template>
