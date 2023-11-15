@@ -5,14 +5,17 @@ import io
 from PIL import Image
 import json
 from src.service.predict import Predictor
+from src.service.FileHelper import FileHelper
 app = Flask(__name__)
 app.config['MODEL_PATH'] = '/home/belizabeth/zjk/DCI-VTON-Virtual-Try-On'
 CORS(app, supports_credentials=True)
 
-predictor = Predictor()
-print("model initializing...")
-predictor.initialize()
-print("model initialized")
+# predictor = Predictor()
+file_helper = FileHelper(app.config)
+
+# print("model initializing...")
+# predictor.initialize()
+# print("model initialized")
     
     
 @app.route('/')
@@ -27,20 +30,12 @@ def upload():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'message': 'No file uploaded errorcode:2'})
-    filename = file.filename
-    image_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(image_url):
-        return jsonify({'message': 'File already exists errorcode:3',
-                        'image_url': image_url})
-
-    file.save(image_url)
-    print("文件保存：", image_url)
-    return jsonify({'image_url': image_url})
+    message, path = file_helper.save(file)
+    print("文件保存：", path)
+    return jsonify({'message': message, 'image_url': path})
 
 @app.route('/predict', methods=['POST'])
 def predict():
-
-
     # 获得json
     data = json.loads(request.data)
     image1_url = data['image1'][0]['response']['image_url']
