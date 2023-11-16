@@ -4,7 +4,7 @@ from src.service.Predictor import Predictor
 from src.service.FileHelper import FileHelper
 app = Flask(__name__)
 app.config['MODEL_PATH'] = '/home/belizabeth/zjk/DCI-VTON-Virtual-Try-On'
-CORS(app, supports_credentials=True)
+CORS(app, resources=r'/*')
 
 file_helper = FileHelper(app.config)
     
@@ -30,15 +30,21 @@ def tryon():
     cloth_id = request.form['clothId']
     # human_hash = request.form['humanHash']
     human_image = request.files['humanImage']
+    if human_image.filename == '':
+        return jsonify({'message': 'No file uploaded errorcode:2'})
     message, file_hash, human_path = file_helper.save(file=human_image.read())
     print(message)
     predictor = Predictor(cloth_id, human_path, file_hash)
-    res = predictor.preprocess()
-    predictor.inference()
-
-    return jsonify({'message': res}) 
+    err = predictor.preprocess()
+    if err != None:
+        return jsonify({'message': err})
+    err, res_path = predictor.inference()
+    if err != None:
+        return jsonify({'message': err})
+    return send_file(res_path)
+    return jsonify({'message': 'success'})
     
 
 if __name__ == '__main__':
-    app.run(debug=False , host='0.0.0.0', port=6000)
+    app.run(debug=True , host='0.0.0.0', port=6001)
     # app.run(debug=True , host='0.0.0.0', port=6000, ssl_context=("/home/ubuntu/VITON01/FlaskServer/.well-known/certificate.crt", "/home/ubuntu/VITON01/FlaskServer/.well-known/private.key"))

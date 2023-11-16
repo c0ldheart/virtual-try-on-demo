@@ -4,11 +4,10 @@ import type { MenuOption } from 'naive-ui'
 import { h, ref, watch, onMounted } from 'vue'
 import { curry, log, unique } from './util'
 import { Resizable, LImg, ResultImage } from './Components'
-
+import axios from 'axios'
 // TODO: 优化组件间属性传递
 // TODO：图片上传并返回结果
 // TODO: Resizable 组件实现默认大小
-
 function handleUpdateValue(key: string, item: MenuOption) {
   log('[onUpdate:value]: ' + JSON.stringify(item))
   type.value = item.key as clothType
@@ -59,6 +58,37 @@ watch(pickedClothID, (newID: string, oldID: string) => {
   document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
 })
 
+function handleFileSelect(e: Event) {
+  const files = (e.target as HTMLInputElement).files
+  if (files) {
+    const file = files[0]
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      if (e.target) {
+        upLoadedImage.value = e.target.result as string
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+async function handleFileUpload() {
+  const formData = new FormData()
+  const blob = await fetch(upLoadedImage.value).then(r => r.blob())
+  formData.append('humanImage', blob)
+  formData.append('clothId', pickedClothID.value)
+  const res = await axios.post('http://127.0.0.1:6001/tryon', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+  const blob_res = new Blob([res.data], { type: 'image/png' });
+  const blobUrl = URL.createObjectURL(blob_res);
+  upLoadedImage.value = blobUrl;
+  console.log(blobUrl)
+
+}
+const upLoadedImage = ref('')
 </script>
 
 <template>
@@ -82,13 +112,26 @@ watch(pickedClothID, (newID: string, oldID: string) => {
         </div>
       </Resizable>
 
-      <div class="flex-1 flex flex-col justify-center items-center">
-        <ResultImage class="h-[60%]" @click-left-arrow="humanIndex--" @click-right-arrow="humanIndex++"
-          :src="imgTryOn(pickedClothID, getHuman(humanIndex))"></ResultImage>
-        <div class="h-[2%]"></div>
-        <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))" />
+        <div class="flex-1 flex flex-col justify-center items-center">
+          <ResultImage class="h-[60%]" @click-left-arrow="humanIndex--" @click-right-arrow="humanIndex++"
+            :src="imgTryOn(pickedClothID, getHuman(humanIndex))"></ResultImage>
+          <div class="h-[2%]"></div>
+          <div>
+            <img :src="upLoadedImage" alt="Uploaded image" />
+          </div>
+          <div class="flex-1 flex flex-col justify-center items-center">
+            <div class="flex">
+              <input type="file" @change="handleFileSelect" />
+              <button @click="handleFileUpload">上传</button>
+            </div>
+            <!-- ... -->
+          </div>
+          <div class="h-[2%]"></div>
+
+          <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))" />
+        </div>
       </div>
-    </div>
+    
 
     <footer class="flex-1 w-full flex justify-center items-center">
       POWERED BY
