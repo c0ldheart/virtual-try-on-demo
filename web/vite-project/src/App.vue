@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { NMenu, NButton, NGradientText, NAvatar, NSpin, NImage } from 'naive-ui'
+import { NMenu, NButton, NGradientText, NAvatar, NSpin, NImage, createDiscreteApi } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
-import { h, ref, watch, onMounted } from 'vue'
-import { curry, log, unique } from './util'
+import { h, ref, watch, onMounted, nextTick, triggerRef } from 'vue'
+import { curry, log, unique, isBlobUrl } from './util'
 import { Resizable, LImg, ResultImage } from './Components'
-import axios from 'axios'
+
+const { message } = createDiscreteApi(['message'])
 
 // TODO: 优化组件间属性传递
-// TODO：图片上传并返回结果
 // TODO: Resizable 组件实现默认大小
+
 function handleUpdateValue(key: string, item: MenuOption) {
   log('[onUpdate:value]: ' + JSON.stringify(item))
   type.value = item.key as clothType
@@ -19,7 +20,11 @@ function handleUpdateValue(key: string, item: MenuOption) {
 const asset = (path: string) => new URL(`./assets/${path}`, import.meta.url).href
 const imgCloth = (id: string) => asset(`clothes/${id}.jpg`)
 const imgPreprocessed = (id: string) => asset(`preprocessed/${id}.png`)
-const imgTryOn = (clothId: string, humanId: string) => asset(`human/${humanId}/${clothId}_${humanId}.png`)
+const imgTryOn = (clothId: string, human: string) =>
+  isBlobUrl(human)
+    ? (resultMap[buildKey(human, pickedClothID.value)] ?? human)
+    : asset(`human/${human}/${clothId}_${human}.png`)
+
 
 const humans = unique(Object.keys(import.meta.glob('./assets/human/**')).map(s => s.split('/').at(-2))) as string[]
 const humanIndex = ref(0)
@@ -45,7 +50,7 @@ const menuOptions: MenuOption[] = [
   }))
 ]
 
-const pickedClothID = ref('')
+const pickedClothID = ref(import.meta.env.DEV ? '5' : '')
 function pickCloth(id: string) {
   log('pickCloth', id)
   pickedClothID.value = id
@@ -59,36 +64,53 @@ watch(pickedClothID, (newID: string, oldID: string) => {
   document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
 })
 
-const upLoadedImage = ref('')
+const resultMap: { [key: string]: string } = {}
+const buildKey = (a: string, b: string) => a + '---' + b
 
 function handleFileSelect(e: Event) {
   const files = (e.target as HTMLInputElement).files
   if (files) {
     const file = files[0]
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      if (e.target) {
-        upLoadedImage.value = e.target.result as string
-      }
-    }
-    reader.readAsDataURL(file)
+    const blobUrl = URL.createObjectURL(file)
+    log(blobUrl)
+
+    humans.push(blobUrl)
+    humanIndex.value = humans.length - 1
+    log(humans)
+
+    message.success('已选择文件：' + file.name)
   }
 }
 
 async function handleFileUpload() {
+  const human = getHuman(humanIndex.value)
+  if (!isBlobUrl(human)) {
+    message.error('请选择自己上传的图片')
+    return
+  }
+
+  if (pickedClothID.value === '') {
+    message.error('请选择一件衣服')
+    return
+  }
+
   const formData = new FormData()
-  const blob = await fetch(upLoadedImage.value).then(r => r.blob())
-  formData.append('humanImage', blob)
+  const humanImage = await (await fetch(human)).blob()
+  formData.append('humanImage', humanImage)
   formData.append('clothId', pickedClothID.value)
-  const res = await axios.post('http://127.0.0.1:6001/tryon', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+
+  const res = await fetch('http://localhost:6001/tryon', {
+    method: 'POST',
+    body: formData,
   })
-  const blob_res = new Blob([res.data], { type: 'image/png' })
-  const blobUrl = URL.createObjectURL(blob_res)
-  upLoadedImage.value = blobUrl
-  console.log(blobUrl)
+  const resultBlob = await res.blob()
+  const resultBlobUrl = URL.createObjectURL(resultBlob)
+  resultMap[buildKey(human, pickedClothID.value)] = resultBlobUrl
+
+  triggerRef(pickedClothID)
+
+  log('res:' + resultBlobUrl)
+  log(resultMap)
 }
 
 </script>
@@ -118,9 +140,6 @@ async function handleFileUpload() {
         <ResultImage class="h-[60%]" @click-left-arrow="humanIndex--" @click-right-arrow="humanIndex++"
           :src="imgTryOn(pickedClothID, getHuman(humanIndex))"></ResultImage>
         <div class="h-[2%]"></div>
-        <div>
-          <img :src="upLoadedImage" alt="Uploaded image" />
-        </div>
         <div class="flex-1 flex flex-col justify-center items-center">
           <div class="flex">
             <input type="file" @change="handleFileSelect" />
@@ -129,10 +148,9 @@ async function handleFileUpload() {
         </div>
         <div class="h-[2%]"></div>
 
-        <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))" />
+        <LImg class="h-[10%]" :src="imgPreprocessed(getHuman(humanIndex))" />
       </div>
     </div>
-
 
     <footer class="flex-1 w-full flex justify-center items-center">
       POWERED BY

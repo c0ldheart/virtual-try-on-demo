@@ -14,3 +14,7 @@ export function log(...data: any[]) {
 export function unique(iterable: any[]) {
     return [...new Set(iterable)]
 }
+
+export function isBlobUrl(url: string) {
+    return url.startsWith('blob:')
+}
