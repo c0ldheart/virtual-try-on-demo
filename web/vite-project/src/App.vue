@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { NMenu, NButton, NGradientText, NAvatar, NSpin, NImage, createDiscreteApi } from 'naive-ui'
+import { NMenu, NButton, NGradientText, NAvatar, NSpin, NImage, createDiscreteApi, NTooltip } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
-import { h, ref, watch, onMounted, nextTick, triggerRef } from 'vue'
+import { h, ref, watch, onMounted, nextTick, triggerRef, computed } from 'vue'
 import { curry, log, unique, isBlobUrl } from './util'
 import { Resizable, LImg, ResultImage } from './Components'
 
@@ -73,6 +73,8 @@ watch(pickedClothID, (newID: string, oldID: string) => {
   document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
 })
 
+const selectFile = ref<HTMLInputElement | null>(null)
+
 function handleFileSelect(e: Event) {
   const files = (e.target as HTMLInputElement).files
   if (files) {
@@ -90,15 +92,6 @@ function handleFileSelect(e: Event) {
 
 async function handleFileUpload() {
   const human = getHuman(humanIndex.value)
-  if (!isBlobUrl(human)) {
-    message.error('请选择自己上传的图片')
-    return
-  }
-
-  if (pickedClothID.value === '') {
-    message.error('请选择一件衣服')
-    return
-  }
 
   const formData = new FormData()
   const humanImage = await (await fetch(human)).blob()
@@ -118,6 +111,14 @@ async function handleFileUpload() {
   log('res:' + resultBlobUrl)
   log(resultMap)
 }
+
+const tryonConditions: [() => boolean, string][] = [
+  [() => pickedClothID.value === '', '请选择一件衣服'],
+  [() => !isBlobUrl(getHuman(humanIndex.value)), '请选择自己上传的图片'],
+]
+
+const tryonButtonTooltip = computed(() => tryonConditions.filter(([f]) => f()).map(([_, s]) => s))
+const isTryonButtonUsable = computed(() => tryonButtonTooltip.value.length === 0)
 
 </script>
 
@@ -146,15 +147,20 @@ async function handleFileUpload() {
         <ResultImage class="h-[60%]" @click-left-arrow="humanIndex--" @click-right-arrow="humanIndex++"
           :src="imgTryOn(pickedClothID, getHuman(humanIndex))"></ResultImage>
         <div class="h-[2%]"></div>
-        <div class="flex-1 flex flex-col justify-center items-center">
-          <div class="flex">
-            <input type="file" @change="handleFileSelect" />
-            <button @click="handleFileUpload">上传</button>
-          </div>
-        </div>
+        <LImg class="max-h-[30%] w-[80%]" :src="imgPreprocessed(getHuman(humanIndex))" />
         <div class="h-[2%]"></div>
-
-        <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))"/>
+        <div class="flex justify-center items-center">
+          <input ref="selectFile" type="file" @change="handleFileSelect" hidden />
+          <n-button class="mx-2" @click="selectFile?.click()">选择图片</n-button>
+          <n-space><n-tooltip trigger="hover" :disabled="isTryonButtonUsable">
+            <template #trigger>
+              <n-button class="bg-emerald-500" @click="handleFileUpload" :type="isTryonButtonUsable ? 'success' : undefined" :disabled="!isTryonButtonUsable">
+                Try On!
+              </n-button>
+            </template>
+            <p v-for="message of tryonButtonTooltip">{{ message }}</p>
+          </n-tooltip></n-space>
+        </div>
       </div>
     </div>
 
