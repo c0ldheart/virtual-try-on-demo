@@ -98,7 +98,7 @@ async function handleFileUpload() {
   formData.append('humanImage', humanImage)
   formData.append('clothId', pickedClothID.value)
 
-  const res = await fetch('http://localhost:6001/tryon', {
+  const res = await fetch('http://101.35.144.148:6001/tryon', {
     method: 'POST',
     body: formData,
   })
