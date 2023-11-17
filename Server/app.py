@@ -7,7 +7,7 @@ app.config['MODEL_PATH'] = '/home/belizabeth/zjk/DCI-VTON-Virtual-Try-On'
 CORS(app, resources=r'/*')
 
 file_helper = FileHelper(app.config)
-    
+res_cache = {}
 @app.route('/')
 def hello_world():
     return 'Hello, World!!!'
@@ -34,6 +34,8 @@ def tryon():
         return jsonify({'message': 'No file uploaded errorcode:2'})
     message, file_hash, human_path = file_helper.save(file=human_image.read())
     print(message)
+    if (file_hash, cloth_id) in res_cache:
+        return send_file(res_cache[(file_hash, cloth_id)])
     predictor = Predictor(cloth_id, human_path, file_hash)
     err = predictor.preprocess()
     if err != None:
@@ -41,6 +43,7 @@ def tryon():
     err, res_path = predictor.inference()
     if err != None:
         return jsonify({'message': err})
+    res_cache[(file_hash, cloth_id)] = res_path
     return send_file(res_path)
     return jsonify({'message': 'success'})
     
