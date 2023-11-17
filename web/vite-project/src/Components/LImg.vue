@@ -44,7 +44,8 @@ onMounted(() => {
 
 <template>
     <div class="flex justify-center relative">
-        <img ref="img" class="h-full" @load="loadSuccess" @error="loaded" :src="src" :loading="lazy ? 'lazy' : 'eager'">
+        <img ref="img" class="h-full w-full" @load="loadSuccess" @error="loaded" :src="src"
+            :loading="lazy ? 'lazy' : 'eager'">
         <n-spin class="absolute h-full w-full" v-show="isLoadding"></n-spin>
     </div>
 </template>

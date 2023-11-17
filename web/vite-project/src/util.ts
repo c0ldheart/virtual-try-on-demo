@@ -11,6 +11,10 @@ export function log(...data: any[]) {
     }
 }
 
-export function unique(iterable: any[]) {
+export function unique<T>(iterable: Iterable<T>) {
     return [...new Set(iterable)]
+}
+
+export function isBlobUrl(url: string) {
+    return url.startsWith('blob:')
 }

@@ -1,9 +1,3 @@
-import Resizable from './Resizable.vue'
-import LImg from './LImg.vue'
-import ResultImage from './ResultImage.vue'
-
-export {
-    Resizable,
-    LImg,
-    ResultImage
-}
+export { default as Resizable } from './Resizable.vue'
+export { default as LImg } from './LImg.vue'
+export { default as ResultImage } from './ResultImage.vue'

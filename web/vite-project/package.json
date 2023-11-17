@@ -10,12 +10,10 @@
     "bp": "pnpm build && pnpm preview"
   },
   "dependencies": {
-    "axios": "^1.6.2",
     "vue": "^3.3.4",
     "vue-router": "4"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.16",
     "naive-ui": "^2.35.0",
