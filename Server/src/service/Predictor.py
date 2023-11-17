@@ -10,7 +10,7 @@ class Predictor():
         self.cloth_id = cloth_id
         self.human_image_path = human_image_path
         self.work_dir = "/home/belizabeth/zjk/DCI-VTON-Virtual-Try-On"
-        self.openpose_dir = "/home/belizabeth/zjk/openpose-master/build/examples/openpose"
+        self.openpose_dir = "/home/belizabeth/zjk/openpose-1.6.0/build/examples/openpose"
         self.densepose_dir = "/home/belizabeth/zjk/TryYours-Virtual-Try-On"
         self.humanparsing_dir = "/home/belizabeth/zjk/TryYours-Virtual-Try-On/Graphonomy-master"
         self.clothes_dir = "/home/belizabeth/zjk/VITONHD_dataset/test"
@@ -38,36 +38,7 @@ class Predictor():
         except Exception as e:
             print(e)
             return "preprocess fail"
-        return "preprocess success!"
-    def inference(self):
-        """
-        Internal inference methods
-        :param model_input: transformed model input data
-        :return: list of inference output in NDArray
-        """
-        res_dir = os.path.join(self.work_dir, "results", self.name)
-        os.makedirs(res_dir, exist_ok=True)
-        os.chdir(self.work_dir)
-        terminnal_command = (
-            "python test.py --plms --gpu_id 0 \
-            --ddim_steps 100 \
-            --person_name %s \
-            --outdir %s \
-            --config configs/viton512.yaml \
-            --dataroot %s \
-            --preprocessed_dir %s \
-            --ckpt /home/belizabeth/zjk/DCI-VTON-Virtual-Try-On/checkpoints/viton512.ckpt \
-            --n_samples 1 \
-            --seed 23 \
-            --scale 1 \
-            --H 512 \
-            --W 512 \
-            --unpaired"
-            % (self.name, res_dir, self.clothes_dir, os.path.join(self.preprocessed_dir, self.name))
-        )
-        os.system(terminnal_command)
         
-    
     def init_preprocess(self) -> None:
         os.chdir(path=self.work_dir)
         self.preprocessed_dir = os.path.abspath(self.preprocessed_dir)
@@ -165,6 +136,40 @@ class Predictor():
             )
         )
         os.system(terminnal_command)
+        
+    def inference(self):
+        """
+        Internal inference methods
+        :param model_input: transformed model input data
+        :return: list of inference output in NDArray
+        """
+        res_dir = os.path.join(self.work_dir, "results", self.name)
+        os.makedirs(res_dir, exist_ok=True)
+        os.chdir(self.work_dir)
+        terminnal_command = (
+            "python test.py --plms --gpu_id 0 \
+            --ddim_steps 100 \
+            --person_name %s \
+            --outdir %s \
+            --config configs/viton512.yaml \
+            --dataroot %s \
+            --preprocessed_dir %s \
+            --ckpt /home/belizabeth/zjk/DCI-VTON-Virtual-Try-On/checkpoints/viton512.ckpt \
+            --n_samples 1 \
+            --seed 23 \
+            --scale 1 \
+            --H 512 \
+            --W 512 \
+            --unpaired \
+            --cloth_id=%s"
+            % (self.name, res_dir, self.clothes_dir, os.path.join(self.preprocessed_dir, self.name), str(self.cloth_id))
+        )
+        try:
+            os.system(terminnal_command)
+        except Exception as e:
+            print(e)
+            return "inference fail", ""
+        return None, os.path.join(res_dir, str(self.cloth_id)+'_'+self.name + ".png")
         
 def print_line(msg):
     print("\033[32m-------------------------------------------\033[0m")
