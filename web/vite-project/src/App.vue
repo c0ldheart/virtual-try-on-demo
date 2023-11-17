@@ -147,19 +147,23 @@ const isTryonButtonUsable = computed(() => tryonButtonTooltip.value.length === 0
         <ResultImage class="h-[60%]" @click-left-arrow="humanIndex--" @click-right-arrow="humanIndex++"
           :src="imgTryOn(pickedClothID, getHuman(humanIndex))"></ResultImage>
         <div class="h-[2%]"></div>
-        <LImg class="max-h-[30%] w-[80%]" :src="imgPreprocessed(getHuman(humanIndex))" />
+        <div class="h-[30%] w-[80%] flex justify-center items-center">
+          <LImg v-if="imgPreprocessed(getHuman(humanIndex))" :src="imgPreprocessed(getHuman(humanIndex))" />
+          <p v-else>暂无预处理图片</p>
+        </div>
         <div class="h-[2%]"></div>
         <div class="flex justify-center items-center">
           <input ref="selectFile" type="file" @change="handleFileSelect" hidden />
           <n-button class="mx-2" @click="selectFile?.click()">选择图片</n-button>
           <n-space><n-tooltip trigger="hover" :disabled="isTryonButtonUsable">
-            <template #trigger>
-              <n-button class="bg-emerald-500" @click="handleFileUpload" :type="isTryonButtonUsable ? 'success' : undefined" :disabled="!isTryonButtonUsable">
-                Try On!
-              </n-button>
-            </template>
-            <p v-for="message of tryonButtonTooltip">{{ message }}</p>
-          </n-tooltip></n-space>
+              <template #trigger>
+                <n-button class="bg-emerald-500" @click="handleFileUpload"
+                  :type="isTryonButtonUsable ? 'success' : undefined" :disabled="!isTryonButtonUsable">
+                  Try On!
+                </n-button>
+              </template>
+              <p v-for="message of tryonButtonTooltip">{{ message }}</p>
+            </n-tooltip></n-space>
         </div>
       </div>
     </div>
