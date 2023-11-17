@@ -16,15 +16,24 @@ function handleUpdateValue(key: string, item: MenuOption) {
   pickedClothID.value = ''
 }
 
+const resultMap: { [key: string]: string } = {}
+const buildKey = (a: string, b: string) => a + '---' + b
+
+const preprocessMap: { [key: string]: string } = {}
+
 // 此处有坑，See https://cn.vitejs.dev/guide/assets.html#new-url-url-import-meta-url
 const asset = (path: string) => new URL(`./assets/${path}`, import.meta.url).href
 const imgCloth = (id: string) => asset(`clothes/${id}.jpg`)
-const imgPreprocessed = (id: string) => asset(`preprocessed/${id}.png`)
+
+const imgPreprocessed = (human: string) =>
+  isBlobUrl(human)
+    ? preprocessMap[human] ?? ''
+    : asset(`preprocessed/${human}.png`)
+
 const imgTryOn = (clothId: string, human: string) =>
   isBlobUrl(human)
     ? (resultMap[buildKey(human, pickedClothID.value)] ?? human)
     : asset(`human/${human}/${clothId}_${human}.png`)
-
 
 const humans = unique(Object.keys(import.meta.glob('./assets/human/**')).map(s => s.split('/').at(-2))) as string[]
 const humanIndex = ref(0)
@@ -63,9 +72,6 @@ watch(pickedClothID, (newID: string, oldID: string) => {
   document.querySelectorAll(`[cloth-id="${oldID}"]`).forEach(e => e.className = clothHoverStyle)
   document.querySelectorAll(`[cloth-id="${newID}"]`).forEach(e => e.className = clothPickStyle)
 })
-
-const resultMap: { [key: string]: string } = {}
-const buildKey = (a: string, b: string) => a + '---' + b
 
 function handleFileSelect(e: Event) {
   const files = (e.target as HTMLInputElement).files
@@ -107,7 +113,7 @@ async function handleFileUpload() {
   const resultBlobUrl = URL.createObjectURL(resultBlob)
   resultMap[buildKey(human, pickedClothID.value)] = resultBlobUrl
 
-  triggerRef(pickedClothID)
+  triggerRef(humanIndex)
 
   log('res:' + resultBlobUrl)
   log(resultMap)
@@ -148,7 +154,7 @@ async function handleFileUpload() {
         </div>
         <div class="h-[2%]"></div>
 
-        <LImg class="h-[10%]" :src="imgPreprocessed(getHuman(humanIndex))" />
+        <LImg class="h-[30%]" :src="imgPreprocessed(getHuman(humanIndex))"/>
       </div>
     </div>
 
