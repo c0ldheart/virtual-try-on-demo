@@ -40,7 +40,10 @@ const humanIndex = ref(0)
 const getHuman = (i: number) => humans.at(i % humans.length) as string
 
 const clothes = {
-  '未分类': Object.keys(import.meta.glob('./assets/clothes/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[]
+  '全部': Object.keys(import.meta.glob('./assets/clothes/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
+  '短袖': Object.keys(import.meta.glob('./assets/clothes/short/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
+  '长袖': Object.keys(import.meta.glob('./assets/clothes/long/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
+  '背心': Object.keys(import.meta.glob('./assets/clothes/sleeveless/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
 }
 type clothType = keyof typeof clothes
 
