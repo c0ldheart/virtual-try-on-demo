@@ -129,7 +129,7 @@ const isTryonButtonUsable = computed(() => tryonButtonTooltip.value.length === 0
   <div class="flex flex-col h-screen">
     <div class="flex px-4 pt-4 pb-1 h-[96%]">
       <div class="w-[20%]">
-        <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
+        <n-gradient-text class="text-[2cqw]">新苗项目-VITON01</n-gradient-text>
         <p class="text-[3cqw] font-bold">虚拟试衣间</p>
         <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
       </div>
