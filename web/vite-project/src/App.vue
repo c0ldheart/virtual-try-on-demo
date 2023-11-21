@@ -155,15 +155,15 @@ const isTryonButtonUsable = computed(() => tryonButtonTooltip.value.length === 0
         <div class="flex justify-center items-center">
           <input ref="selectFile" type="file" @change="handleFileSelect" hidden />
           <n-button class="mx-2" @click="selectFile?.click()">选择图片</n-button>
-          <n-space><n-tooltip trigger="hover" :disabled="isTryonButtonUsable">
-              <template #trigger>
-                <n-button class="bg-emerald-500" @click="handleFileUpload"
-                  :type="isTryonButtonUsable ? 'success' : undefined" :disabled="!isTryonButtonUsable">
-                  Try On!
-                </n-button>
-              </template>
-              <p v-for="message of tryonButtonTooltip">{{ message }}</p>
-            </n-tooltip></n-space>
+          <n-tooltip trigger="hover" :disabled="isTryonButtonUsable">
+            <template #trigger>
+              <n-button class="bg-emerald-500" @click="handleFileUpload"
+                :type="isTryonButtonUsable ? 'success' : undefined" :disabled="!isTryonButtonUsable">
+                Try On!
+              </n-button>
+            </template>
+            <p v-for="message of tryonButtonTooltip">{{ message }}</p>
+          </n-tooltip>
         </div>
       </div>
     </div>
