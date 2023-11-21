@@ -40,7 +40,10 @@ const humanIndex = ref(0)
 const getHuman = (i: number) => humans.at(i % humans.length) as string
 
 const clothes = {
-  '未分类': Object.keys(import.meta.glob('./assets/clothes/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[]
+  '全部': Object.keys(import.meta.glob('./assets/clothes/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
+  '短袖': Object.keys(import.meta.glob('./assets/clothes/short/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
+  '长袖': Object.keys(import.meta.glob('./assets/clothes/long/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
+  '背心': Object.keys(import.meta.glob('./assets/clothes/sleeveless/*')).map(s => s.match(/\/(\w*)\./)?.[1]) as string[],
 }
 type clothType = keyof typeof clothes
 
@@ -98,7 +101,7 @@ async function handleFileUpload() {
   formData.append('humanImage', humanImage)
   formData.append('clothId', pickedClothID.value)
 
-  const res = await fetch('http://localhost:6001/tryon', {
+  const res = await fetch('http://101.35.144.148:6001/tryon', {
     method: 'POST',
     body: formData,
   })
@@ -126,7 +129,7 @@ const isTryonButtonUsable = computed(() => tryonButtonTooltip.value.length === 0
   <div class="flex flex-col h-screen">
     <div class="flex px-4 pt-4 pb-1 h-[96%]">
       <div class="w-[20%]">
-        <n-gradient-text class="text-[2cqw]">寒心霜冻の</n-gradient-text>
+        <n-gradient-text class="text-[2cqw]">新苗项目-VITON01</n-gradient-text>
         <p class="text-[3cqw] font-bold">虚拟试衣间</p>
         <n-menu class="mt-4" :options="menuOptions" @update:value="handleUpdateValue" :default-value="type" />
       </div>
